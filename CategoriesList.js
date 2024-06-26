@@ -1,8 +1,11 @@
 import axios from "axios"
+import { useContext } from "react"
+import CategoriesContext from "./CategoriesContext"
 
-export default function CategoriesList (props) {
 
-  const {categories, handleCategoryRemoveComponent} = props
+export default function CategoriesList () {
+
+  const {categories, handleCategoryRemoveComponent} = useContext(CategoriesContext)
   const urlCat = `http://localhost:3010/api/categories`
 
   const handleCategoryRemove = (category) => {

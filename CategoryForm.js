@@ -1,17 +1,15 @@
 import axios from "axios"
-import {useState} from "react"
+import {useState, useContext} from "react"
+import CategoriesContext from "./CategoriesContext"
 
-
-
-
-export default function CategoryForm (props) {
+export default function CategoryForm () {
     
     const [categoryName, setCategoryName] = useState('')
     const [categoryServerErrors, setCategoryServerErrors] = useState('')
     const [categoryClientErrors, setCategoryClientErrors] = useState('')
     const categoryErrors = {}
 
-    const {handleAddCategory} = props
+    const {handleAddCategory} = useContext(CategoriesContext)
 
     const urlCat = `http://localhost:3010/api/categories`
 
@@ -21,7 +19,7 @@ const runCategoryClientValidation = () => {
       } 
   }
 
-  const handleCategoryNameSubmit = (e) => {
+const handleCategoryNameSubmit = (e) => {
     e.preventDefault()
     const formData = {name: categoryName}
     runCategoryClientValidation()

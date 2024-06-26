@@ -7,6 +7,7 @@ import CategoriesList from './CategoriesList';
 import ExpensesTable from './ExpensesTable';
 import ExpenseForm from './ExpenseForm';
 import ExpenseContext from './ExpenseContext';
+import CategoriesContext from './CategoriesContext';
 
 const expensesReducer = (state, action) => {
   if (action.type === "SET_EXPENSES") {
@@ -74,11 +75,15 @@ export default function App() {
       <h3> Listing Categories - {categories.length} </h3>
       <button onClick={handleCategoriesListClick}>Get Categories</button>
 
-      <CategoriesList categories={categories} handleCategoryRemoveComponent={handleCategoryRemoveComponent} />
-
+      <CategoriesContext.Provider value={{categories, handleCategoryRemoveComponent}} >
+      <CategoriesList />
+      </CategoriesContext.Provider>
+      
       <h3> Add Category </h3>
 
-      <CategoryForm handleAddCategory={handleAddCategory} />
+      <CategoriesContext.Provider value={{handleAddCategory}} >
+      <CategoryForm />
+      </CategoriesContext.Provider>
 
       <ExpenseContext.Provider value={{ expenses: expenses.data, getCategoryName, categories, expensesDispatch }}>
         <ExpensesTable />
