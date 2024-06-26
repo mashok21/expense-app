@@ -1,20 +1,12 @@
 import axios from "axios"
+import ExpenseItem from "./ExpenseItem"
+import { useContext } from "react"
+import ExpenseContext from "./ExpenseContext"
 
 
-export default function ExpensesTable (props) {
+export default function ExpensesTable () {
 
-    const {expenses, getCategoryName, handleExpenseRemoveComponent} = props
-
-    const urlExp = `http://localhost:3010/api/expenses`
-
-    const handleExpenseRemove = (expense) => {
-        const urlExpId = `${urlExp}/${expense._id}`
-        axios.delete(urlExpId)
-        .then(response => {
-        handleExpenseRemoveComponent(response.data)
-        })
-        .catch(error=>console.log(error))
-    }
+    const {expenses, getCategoryName, expensesDispatch} = useContext(ExpenseContext)
 
     return (
         <div>
@@ -32,18 +24,23 @@ export default function ExpensesTable (props) {
                 </tr>  
                 </thead>
                 <tbody>
-                {expenses.map((expense, i) => (
-                    <tr key={i}>
-                    <td>{expense.description}</td>
-                    <td>{expense.expenseDate}</td>
-                    <td>{expense.title}</td>
-                    <td>{expense.amount}</td>
-                    <td>{getCategoryName(expense)}</td>
-                    <td><button onClick={() => {handleExpenseRemove(expense)}}>remove expense </button></td>
+                {Array.isArray(expenses) && expenses.length > 0 ? (
+                    expenses.map((expense) => (
+                    <ExpenseItem
+                        key={expense._id}
+                        {...expense}
+                        expensesDispatch={expensesDispatch}
+                        getCategoryName={getCategoryName}
+                    />
+                    ))
+                ) : (
+                    <tr>
+                    <td colSpan="6">No expenses found</td>
                     </tr>
-                ))}
+                )}
                 </tbody>
             </table>
+            <h4> Total Expenses - {Array.isArray(expenses) && expenses.length > 0 ? expenses.reduce((total, current) => total + current.amount, 0) : 0} </h4>
         </div>
     )
 }

@@ -1,7 +1,8 @@
 import axios from "axios"
-import {useState} from "react"
+import {useContext, useState} from "react"
+import ExpenseContext from "./ExpenseContext"
 
-export default function ExpenseForm (props) {
+export default function ExpenseForm () {
 
     const [expenseDate, setExpenseDate] = useState('')
     const [expenseTitle, setExpenseTitle] = useState('')
@@ -12,7 +13,7 @@ export default function ExpenseForm (props) {
     const [expenseClientErrors, setExpenseClientErrors] = useState({})
     const expenseErrors = {}
 
-    const {handleAddExpense, categories} = props
+    const {expensesDispatch, categories} = useContext(ExpenseContext)
 
     const urlExp = `http://localhost:3010/api/expenses`
 
@@ -49,7 +50,7 @@ export default function ExpenseForm (props) {
         if(Object.keys(expenseErrors).length === 0){
           axios.post(urlExp, formData)
           .then(response => {
-            handleAddExpense(response.data)
+            expensesDispatch({type: "ADD_EXPENSES", payload: response.data})
             setExpenseAmount("")
             setExpenseDate("")
             setExpenseCategory("")
