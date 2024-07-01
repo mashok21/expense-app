@@ -16,6 +16,16 @@ const expensesReducer = (state, action) => {
     return { ...state, data: state.data.filter(ele => ele._id !== action.payload._id) }
   } else if (action.type === "ADD_EXPENSES") {
     return { ...state, data: [...state.data, action.payload] }
+  } else if (action.type === "SET_EDIT_ID"){
+    return {...state, editId: action.payload}
+  } else if (action.type === "EDIT_EXPENSE"){
+    return {...state, data: state.data.map(ele => {
+       if(ele._id === action.payload._id){
+        return {...action.payload}
+       } else {
+        return {...ele}
+       }
+    })}
   } else {
     return state
   }
@@ -25,12 +35,12 @@ export default function App() {
   // state vars related to cat
   // state vars related to exp
   const [categories, setCategories] = useState([]);
-  const [expenses, expensesDispatch] = useReducer(expensesReducer, { data: [] });
+  const [expenses, expensesDispatch] = useReducer(expensesReducer, { data: [], editId: null });
 
   const urlCat = `http://localhost:3010/api/categories`;
   const urlExp = `http://localhost:3010/api/expenses`;
 
-  const handleCategoriesListClick = () => {
+  useEffect(() => {
     axios.get(urlCat)
       .then(response => {
         const data = response.data;
@@ -38,8 +48,9 @@ export default function App() {
       })
       .catch(error => {
         console.log(error);
-      });
-  }
+      })
+    }, [])
+  
 
   const handleAddCategory = (category) => {
     setCategories([...categories, category]);
@@ -60,6 +71,7 @@ export default function App() {
     setCategories(categories.filter(cat => cat._id !== category._id));
   }
 
+  
   useEffect(() => {
     axios.get(urlExp)
       .then(response => {
@@ -73,8 +85,7 @@ export default function App() {
       <h1> Expense App </h1>
       <h2> Categories </h2>
       <h3> Listing Categories - {categories.length} </h3>
-      <button onClick={handleCategoriesListClick}>Get Categories</button>
-
+      
       <CategoriesContext.Provider value={{categories, handleCategoryRemoveComponent}} >
       <CategoriesList />
       </CategoriesContext.Provider>
@@ -85,7 +96,7 @@ export default function App() {
       <CategoryForm />
       </CategoriesContext.Provider>
 
-      <ExpenseContext.Provider value={{ expenses: expenses.data, getCategoryName, categories, expensesDispatch }}>
+      <ExpenseContext.Provider value={{ expenses: expenses, getCategoryName, categories, expensesDispatch }}>
         <ExpensesTable />
         <ExpenseForm />
       </ExpenseContext.Provider>

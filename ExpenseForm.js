@@ -1,5 +1,6 @@
 import axios from "axios"
-import {useContext, useState} from "react"
+import {format} from "date-fns"
+import {useContext, useEffect, useState} from "react"
 import ExpenseContext from "./ExpenseContext"
 
 export default function ExpenseForm () {
@@ -13,9 +14,27 @@ export default function ExpenseForm () {
     const [expenseClientErrors, setExpenseClientErrors] = useState({})
     const expenseErrors = {}
 
-    const {expensesDispatch, categories} = useContext(ExpenseContext)
+    const {expensesDispatch, categories, expenses} = useContext(ExpenseContext)
 
-    const urlExp = `http://localhost:3010/api/expenses`
+    const expense = expenses.data.find(ele => ele._id === expenses.editId)
+
+        useEffect(() => {
+      if (expense){
+        setExpenseDate(format(new Date(expense.expenseDate), 'yyyy-MM-dd'))
+        setExpenseTitle(expense.title)
+        setExpenseAmount(expense.amount)
+        setExpenseDescription(expense.description)
+        setExpenseCategory(expense.category)
+      } else {
+        setExpenseDate('')
+        setExpenseTitle('')
+        setExpenseAmount('')
+        setExpenseDescription('')
+        setExpenseCategory('')
+      }
+    }, [expense])
+
+    const urlExp = `http://localhost:3010/api/expenses/`
 
     const runExpenseClientValidationErrors = () => {
         if(expenseDate.trim().length === 0){
@@ -26,7 +45,7 @@ export default function ExpenseForm () {
         if (expenseTitle.trim().length === 0){
           expenseErrors.expenseTitle = "Need a title"
         }
-        if(expenseAmount.trim().length === 0 || expenseAmount.trim() < 1){
+        if(String(expenseAmount).trim().length === 0 || String(expenseAmount).trim() < 1){
           expenseErrors.expenseAmount = "Need a valid amount greater than 1"
         }
         if(expenseCategory.trim().length === 0){
@@ -48,21 +67,30 @@ export default function ExpenseForm () {
         runExpenseClientValidationErrors()
     
         if(Object.keys(expenseErrors).length === 0){
-          axios.post(urlExp, formData)
-          .then(response => {
-            expensesDispatch({type: "ADD_EXPENSES", payload: response.data})
-            setExpenseAmount("")
-            setExpenseDate("")
-            setExpenseCategory("")
-            setExpenseDescription("")
-            setExpenseTitle("")
-            setExpenseServerErrors([])
-            setExpenseClientErrors({})
-        })
-        .catch(errors => {
-          console.log(errors)
-          setExpenseServerErrors(errors.response.data.errors)
-        })
+          if (expense){
+            axios.put(`${urlExp}${expense._id}`, formData)
+              .then(response => {
+                expensesDispatch({type: 'EDIT_EXPENSE', payload: response.data})
+                expensesDispatch({type: "SET_EDIT_ID", payload: null})
+                })
+              .catch(err => console.log(err))
+          } else {
+            axios.post(urlExp, formData)
+              .then(response => {
+                expensesDispatch({type: "ADD_EXPENSES", payload: response.data})
+                setExpenseAmount("")
+                setExpenseDate("")
+                setExpenseCategory("")
+                setExpenseDescription("")
+                setExpenseTitle("")
+                setExpenseServerErrors([])
+                setExpenseClientErrors({})
+              })
+            .catch(errors => {
+              console.log(errors)
+              setExpenseServerErrors(errors.response.data.errors)
+            })
+          }
         } else {
           setExpenseClientErrors(expenseErrors)
         }
@@ -70,15 +98,17 @@ export default function ExpenseForm () {
 
     return (
         <div>
-            <h2> Add Expenses </h2>
+            <h2> {expenses ? "Edit" : "Add"} Expenses </h2>
 
             {expenseServerErrors.length > 0 && (
+                <div>
+                <h3> Server Errors </h3>
                 <ul>
-                    <h3> Server Errors </h3>
                     {expenseServerErrors.map((ele, i) => {
                     return <li key={i}>{ele.msg}</li>
                     })}
                 </ul>
+                </div>
             )}
 
             <form onSubmit={handleExpenseFormSubmit}>

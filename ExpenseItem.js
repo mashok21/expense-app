@@ -13,13 +13,19 @@ export default function ExpenseItem (props) {
         }
     }
     
+    const handleSetId = () => {
+        expensesDispatch({type: "SET_EDIT_ID", payload: _id})
+    }
+
     return (<tr>
                 <td>{description}</td>
                 <td>{expenseDate}</td>
                 <td>{title}</td>
                 <td>{amount}</td>
-                <td></td>
-                <td><button onClick={handleRemove}>remove</button></td>
+                <td>{_id}</td>
+                <td><button onClick={handleSetId}>edit</button>
+                    <button onClick={handleRemove}>remove</button>
+                </td>
             </tr>
             )
 }

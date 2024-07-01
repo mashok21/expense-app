@@ -10,7 +10,7 @@ export default function ExpensesTable () {
 
     return (
         <div>
-            <h2>Expenses</h2>
+            <h2>Listing Expenses = {expenses.data.length}</h2>
             <br/>
             <table border="1">
                 <thead>
@@ -24,8 +24,8 @@ export default function ExpensesTable () {
                 </tr>  
                 </thead>
                 <tbody>
-                {Array.isArray(expenses) && expenses.length > 0 ? (
-                    expenses.map((expense) => (
+                {Array.isArray(expenses.data) && expenses.data.length > 0 ? (
+                    expenses.data.map((expense) => (
                     <ExpenseItem
                         key={expense._id}
                         {...expense}
@@ -40,7 +40,7 @@ export default function ExpensesTable () {
                 )}
                 </tbody>
             </table>
-            <h4> Total Expenses - {Array.isArray(expenses) && expenses.length > 0 ? expenses.reduce((total, current) => total + current.amount, 0) : 0} </h4>
+            <h4> Total Expenses - {Array.isArray(expenses.data) && expenses.data.length > 0 ? expenses.data.reduce((total, current) => total + current.amount, 0) : 0} </h4>
         </div>
     )
 }
